@@ -3,6 +3,7 @@ import torch.nn as nn
 
 __all__ = ['resnet10units']
 
+
 class Bottleneck(nn.Module):
     expansion = 4
 
@@ -40,7 +41,8 @@ class Bottleneck(nn.Module):
         out = self.relu(out)
 
         return out
-    
+
+
 class DeconvModule(nn.Module):
     def __init__(self, in_channels, block, layers):
         super(DeconvModule, self).__init__()
@@ -50,10 +52,10 @@ class DeconvModule(nn.Module):
         self.bn1 = nn.BatchNorm2d(256)
         self.relu = nn.ReLU(inplace=True)
         self.layer1 = self._make_layer(block, 256, layers[0])
-        
+
         self.upsample = nn.UpsamplingBilinear2d(scale_factor=2)
-        self.decoder1 = self._make_layer(block, 128, 1, stride = 1)
-        self.pred_small = nn.Conv2d(128*block.expansion, 2, kernel_size=1, stride=1, bias=True)
+        self.decoder1 = self._make_layer(block, 128, 1, stride=1)
+        self.pred_small = nn.Conv2d(128 * block.expansion, 2, kernel_size=1, stride=1, bias=True)
 
     def _make_layer(self, block, planes, blocks, stride=1):
         downsample = None
@@ -79,9 +81,10 @@ class DeconvModule(nn.Module):
         x = self.layer1(x)
         x = self.upsample(x)
         x = self.decoder1(x)
-        
+
         x = self.pred_small(x)
         return x
-    
+
+
 def resnet10units(in_channel):
     return DeconvModule(in_channel, Bottleneck, [10])

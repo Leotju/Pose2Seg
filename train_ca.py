@@ -14,8 +14,8 @@ from lib.logger import colorlogger
 from lib.timer import Timers
 from lib.averageMeter import AverageMeters
 from lib.torch_utils import adjust_learning_rate
-
-from modeling.build_model import Pose2Seg
+from lib.box_overlap import bbox_overlaps
+from modeling.build_model_ca import Pose2Seg
 from datasets.CocoDatasetInfo import CocoDatasetInfo, annToMask
 from test import test
 
@@ -24,8 +24,8 @@ NAME = "release_base"
 # Set `LOG_DIR` and `SNAPSHOT_DIR`
 def setup_logdir():
     timestamp = time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime()) 
-    LOGDIR = os.path.join('logs', '%s_%s'%(NAME, timestamp))
-    SNAPSHOTDIR = os.path.join('snapshot', '%s_%s'%(NAME, timestamp))
+    LOGDIR = os.path.join('../logs', '%s_%s'%(NAME, timestamp))
+    SNAPSHOTDIR = os.path.join('../snapshot', '%s_%s'%(NAME, timestamp))
     if not os.path.exists(LOGDIR):
         os.makedirs(LOGDIR)
     if not os.path.exists(SNAPSHOTDIR):
@@ -94,8 +94,8 @@ class Dataset():
     def __init__(self):
         # ImageRoot = './data/coco2017/train2017'
         # AnnoFile = './data/coco2017/annotations/person_keypoints_train2017_pose2seg.json'
-        ImageRoot = '/media/leo/data/datasets/coco/images/val2017'
-        AnnoFile = '/media/leo/data/datasets/coco/annotations/person_keypoints_val2017_pose2seg.json'
+        ImageRoot = '../data/datasets/coco/images/val2017'
+        AnnoFile = '../data/datasets/coco/annotations/person_keypoints_val2017_pose2seg.json'
         self.datainfos = CocoDatasetInfo(ImageRoot, AnnoFile, onlyperson=True, loadimg=True)
     
     def __len__(self):
@@ -110,14 +110,20 @@ class Dataset():
         gt_kpts = np.float32(rawdata['gt_keypoints']).transpose(0, 2, 1) # (N, 17, 3)
         gt_segms = rawdata['segms']
         gt_masks = np.array([annToMask(segm, height, width) for segm in gt_segms])
-    
-        return {'img': img, 'kpts': gt_kpts, 'masks': gt_masks}
+        gt_boxes = rawdata['boxes']
+
+        overlaps = bbox_overlaps(gt_boxes, gt_boxes)
+        gt_count = (overlaps >= 0.5).astype(np.float).max(1)
+
+        return {'img': img, 'kpts': gt_kpts, 'masks': gt_masks, 'count': gt_count}
         
     def collate_fn(self, batch):
         batchimgs = [data['img'] for data in batch]
         batchkpts = [data['kpts'] for data in batch]
         batchmasks = [data['masks'] for data in batch]
-        return {'batchimgs': batchimgs, 'batchkpts': batchkpts, 'batchmasks':batchmasks}
+        batchcounts = [data['count'] for data in batch]
+
+        return {'batchimgs': batchimgs, 'batchkpts': batchkpts, 'batchmasks':batchmasks, 'batchcounts':batchcounts}
         
 if __name__=='__main__':
     logger.info('===========> loading model <===========')

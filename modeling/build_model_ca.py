@@ -20,7 +20,7 @@ from modeling.affine_align import affine_align_gpu
 from modeling.seg_module import resnet10units
 from modeling.core import PoseAlign
 from modeling.skeleton_feat import genSkeletons
-
+from lib.loss import weight_reduce_loss
 timers = Timers()
 
 
@@ -62,21 +62,22 @@ class Pose2Seg(nn.Module):
         model_dict.update(pretrained_dict)
         self.load_state_dict(model_dict)
 
-    def forward(self, batchimgs, batchkpts, batchmasks=None):
-        self._setInputs(batchimgs, batchkpts, batchmasks)
+    def forward(self, batchimgs, batchkpts, batchmasks=None, batchcounts=None):
+        self._setInputs(batchimgs, batchkpts, batchmasks, batchcounts)
         self._calcNetInputs()
         self._calcAlignMatrixs()
         output = self._forward()
         # self.visualize(output)
         return output
 
-    def _setInputs(self, batchimgs, batchkpts, batchmasks=None):
+    def _setInputs(self, batchimgs, batchkpts, batchmasks=None, batchcounts=None):
         ## batchimgs: a list of array (H, W, 3)
         ## batchkpts: a list of array (m, 17, 3)
         ## batchmasks: a list of array (m, H, W)
         self.batchimgs = batchimgs
         self.batchkpts = batchkpts
         self.batchmasks = batchmasks
+        self.batchcounts = batchcounts
         self.bz = len(self.batchimgs)
 
         ## sample
@@ -91,6 +92,7 @@ class Pose2Seg(nn.Module):
                 for i, (index, kpts) in enumerate(zip(indexs, self.batchkpts)):
                     self.batchkpts[i] = self.batchkpts[i][index]
                     self.batchmasks[i] = self.batchmasks[i][index]
+                    self.batchcounts[i] = self.batchcounts[i][index]
 
     def _calcNetInputs(self):
         self.inputMatrixs = [translib.get_aug_matrix(img.shape[1], img.shape[0], 512, 512,
@@ -210,12 +212,22 @@ class Pose2Seg(nn.Module):
         mask_loss_func = nn.CrossEntropyLoss(ignore_index=255)
 
         gts = []
-        for masks, Matrixs in zip(self.batchmasks, self.maskAlignMatrixs):
-            for mask, matrix in zip(masks, Matrixs):
+        gt_count = []
+        for masks, Matrixs, counts in zip(self.batchmasks, self.maskAlignMatrixs, self.batchcounts):
+            for mask, matrix, count in zip(masks, Matrixs, counts):
                 gts.append(cv2.warpAffine(mask, matrix[0:2], (self.size_output, self.size_output)))
+                gt_count.append(count)
         gts = torch.from_numpy(np.array(gts)).long().cuda(0)
+        gt_count = torch.from_numpy(np.array(gt_count)).float().cuda(0)
+        # loss = mask_loss_func(netOutput, gts)
+        # loss = F.cross_entropy(netOutput, gts)
 
-        loss = mask_loss_func(netOutput, gts)
+        loss = F.cross_entropy(netOutput, gts, reduction='none')
+        loss = weight_reduce_loss(loss, weight=gt_count[:, None, None].repeat(1, 64, 64))
+
+
+
+
         return loss
 
     def _getMaskOutput(self, netOutput):
