@@ -96,6 +96,7 @@ class Dataset():
         # AnnoFile = './data/coco2017/annotations/person_keypoints_train2017_pose2seg.json'
         ImageRoot = '../data/coco2017/images/train2017'
         AnnoFile = '../data/coco2017/annotations/person_keypoints_train2017_pose2seg.json'
+
         self.datainfos = CocoDatasetInfo(ImageRoot, AnnoFile, onlyperson=True, loadimg=True)
     
     def __len__(self):
