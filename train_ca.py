@@ -152,9 +152,9 @@ if __name__=='__main__':
             iteration = train(model, dataloaderTrain, optimizer, epoch, iteration)
             epoch += 1
             
-            logger.info('===========>   testing    <===========')
-            test(model, dataset='cocoVal', logger=logger.info)
-            test(model, dataset='OCHumanVal', logger=logger.info)
+            # logger.info('===========>   testing    <===========')
+            # test(model, dataset='cocoVal', logger=logger.info)
+            # test(model, dataset='OCHumanVal', logger=logger.info)
 
 
     except (KeyboardInterrupt):
