@@ -100,7 +100,7 @@ if __name__=='__main__':
     if args.coco:
         test(model, dataset='cocoVal') 
     if args.OCHuman:
-        # test(model, dataset='OCHumanVal')
+        test(model, dataset='OCHumanVal')
         test(model, dataset='OCHumanValM')
         test(model, dataset='OCHumanValH')
         test(model, dataset='OCHumanTest') 
