@@ -12,7 +12,7 @@ def test(model, dataset='cocoVal', logger=print):
         AnnoFile = '../data/OCHuman/annotations/ochuman_coco_format_val_range_0.00_1.00.json'
     elif dataset == 'OCHumanValM':
         ImageRoot = '../data/OCHuman/images'
-        AnnoFile = '../data/OCHuman/annotations/ochuman_coco_format_val_range_0.50_1.75.json'
+        AnnoFile = '../data/OCHuman/annotations/ochuman_coco_format_val_range_0.50_0.75.json'
     elif dataset == 'OCHumanValH':
         ImageRoot = '../data/OCHuman/images'
         AnnoFile = '../data/OCHuman/annotations/ochuman_coco_format_val_range_0.75_1.00.json'
@@ -100,7 +100,7 @@ if __name__=='__main__':
     if args.coco:
         test(model, dataset='cocoVal') 
     if args.OCHuman:
-        test(model, dataset='OCHumanVal')
+        # test(model, dataset='OCHumanVal')
         test(model, dataset='OCHumanValM')
         test(model, dataset='OCHumanValH')
         test(model, dataset='OCHumanTest') 
