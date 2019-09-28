@@ -8,14 +8,14 @@ from pycocotools import mask as maskUtils
 
 def test(model, dataset='cocoVal', logger=print):    
     if dataset == 'OCHumanVal':
-        ImageRoot = './data/OCHuman/images'
+        ImageRoot = '../data/OCHuman/images'
         AnnoFile = './data/OCHuman/annotations/ochuman_coco_format_val_range_0.00_1.00.json'
     elif dataset == 'OCHumanTest':
-        ImageRoot = './data/OCHuman/images'
+        ImageRoot = '../data/OCHuman/images'
         AnnoFile = './data/OCHuman/annotations/ochuman_coco_format_test_range_0.00_1.00.json'
     elif dataset == 'cocoVal':
-        ImageRoot = './data/coco2017/val2017'
-        AnnoFile = './data/coco2017/annotations/person_keypoints_val2017_pose2seg.json'
+        ImageRoot = '../data/coco2017/val2017'
+        AnnoFile = '../data/coco2017/annotations/person_keypoints_val2017_pose2seg.json'
     datainfos = CocoDatasetInfo(ImageRoot, AnnoFile, onlyperson=True, loadimg=True)
     
     model.eval()
