@@ -33,6 +33,7 @@ def setup_logdir():
     return LOGDIR, SNAPSHOTDIR
 LOGDIR, SNAPSHOTDIR = setup_logdir()
 
+
 # Set logging 
 logger = colorlogger(log_dir=LOGDIR, log_name='train_logs.txt')
 
