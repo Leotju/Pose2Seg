@@ -218,7 +218,9 @@ class Pose2Seg(nn.Module):
                 gts.append(cv2.warpAffine(mask, matrix[0:2], (self.size_output, self.size_output)))
                 gt_count.append(count)
         gts = torch.from_numpy(np.array(gts)).long().cuda(0)
-        gt_count = torch.from_numpy(np.array(gt_count)).float().cuda(0)
+        gt_count = (torch.from_numpy(np.array(gt_count)).float().cuda(0) - 1) * 0.5 + 1
+
+
         # loss = mask_loss_func(netOutput, gts)
         # loss = F.cross_entropy(netOutput, gts)
 

@@ -25,7 +25,7 @@ NAME = "release_base"
 def setup_logdir():
     timestamp = time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime()) 
     LOGDIR = os.path.join('../logs', '%s_%s'%(NAME, timestamp))
-    SNAPSHOTDIR = os.path.join('../snapshot', '%s_%s'%(NAME, timestamp))
+    SNAPSHOTDIR = os.path.join('../snapshot/ca_weight_05/', '%s_%s'%(NAME, timestamp))
     if not os.path.exists(LOGDIR):
         os.makedirs(LOGDIR)
     if not os.path.exists(SNAPSHOTDIR):
@@ -94,8 +94,8 @@ class Dataset():
     def __init__(self):
         # ImageRoot = './data/coco2017/train2017'
         # AnnoFile = './data/coco2017/annotations/person_keypoints_train2017_pose2seg.json'
-        ImageRoot = '../data/coco2017/train2017'
-        AnnoFile = '../data/coco2017/annotations/person_keypoints_train2017_pose2seg.json'
+        ImageRoot = '../data/coco2017/val2017'
+        AnnoFile = '../data/coco2017/annotations/person_keypoints_val2017_pose2seg.json'
 
         self.datainfos = CocoDatasetInfo(ImageRoot, AnnoFile, onlyperson=True, loadimg=True)
     

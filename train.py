@@ -94,8 +94,8 @@ class Dataset():
     def __init__(self):
         # ImageRoot = './data/coco2017/train2017'
         # AnnoFile = './data/coco2017/annotations/person_keypoints_train2017_pose2seg.json'
-        ImageRoot = '/media/leo/data/datasets/coco/images/val2017'
-        AnnoFile = '/media/leo/data/datasets/coco/annotations/person_keypoints_val2017_pose2seg.json'
+        ImageRoot = '../data/coco2017/train2017'
+        AnnoFile = '../data/coco2017/annotations/person_keypoints_train2017_pose2seg.json'
         self.datainfos = CocoDatasetInfo(ImageRoot, AnnoFile, onlyperson=True, loadimg=True)
     
     def __len__(self):
